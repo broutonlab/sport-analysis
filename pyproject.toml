@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "fieldkeypoints_backup0"
+version = "0.1.0"
+description = ""
+authors = ["AnyashaTk <47858669+AnyashaTk@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.12"
+matplotlib = "^3.5.2"
+opencv-python = "^4.6.0.66"
+pandas = "^1.4.3"
+sklearn = "^0.0"
+tqdm = "^4.64.0"
+albumentations = "^1.2.1"
+requests = "^2.28.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
