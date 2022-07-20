@@ -3,15 +3,14 @@ import cv2
 import matplotlib as mpl
 import matplotlib.cm as mtpltcm
 
-from src.constants import INF_IMG_SIZE
+from src.options.base_options import INF_IMG_SIZE
 from src.models.decode import decode_card
-from src.inference.utils_instance import preparation, get_model
+from src.inference.utils_instance import preprocessing, get_model
 
 from src.models.utils import image_to_square
 
-parser = argparse.ArgumentParser(
-    description=" "
-)
+parser = argparse.ArgumentParser(description=" ")
+
 parser.add_argument(
     "--video_in",
     type=str,
@@ -27,8 +26,8 @@ parser.add_argument(
 parser.add_argument(
     "--weights",
     type=str,
-    default="./checkpoints/field_keypoints_best.pd",
-    help="path to video. (default:./checkpoints/field_keypoints_best.pd)",
+    default="./checkpoints/field_keypoint_best.pd",
+    help="path to video. (default:./checkpoints/field_keypoint_best.pd)",
 )
 args = parser.parse_args()
 
@@ -41,23 +40,22 @@ fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # DIVX # mp4v # cv2.VideoWriter_fourcc
 out = cv2.VideoWriter(args.path_out, cv2.VideoWriter_fourcc(*"mp4v"),
                       25.0, (INF_IMG_SIZE, INF_IMG_SIZE))
 
-# import the color source
-# initialize the colormap (jet)
+# Initialize the colormap (jet)
 colormap = mpl.cm.jet
-# add a normalization
+# Add a normalization
 cNorm = mpl.colors.Normalize(vmin=0, vmax=255)
-# init the mapping
+# Init the mapping
 scalarMap = mtpltcm.ScalarMappable(norm=cNorm, cmap=colormap)
 
 while cap.isOpened():
     ret, frame = cap.read()
     if ret:
-        image, tensor = preparation(frame)
+        image, tensor = preprocessing(frame)
 
         out_model = model(tensor)
 
         heatmaps, offsets = out_model
-        # decode results
+        # Decode results
         pred_indices_linear, pred_Sxy, head = decode_card(
             heatmaps[0].squeeze(0), offsets[0].squeeze(0)
         )
@@ -65,7 +63,7 @@ while cap.isOpened():
 
         for i, (x, y) in enumerate(pred_out.reshape(-1, 2)):
             image = cv2.putText(image, str(i), (int(x), int(y) - 3),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, [0, 0, 0], 2, cv2.LINE_AA)
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 0, 0], 2, cv2.LINE_AA)
             cv2.circle(image, (int(x), int(y)), 2, [0, 255, 255], -1)
 
         cv2.imshow("frame", image)

@@ -1,10 +1,12 @@
-checkpoints/
-runs/
-data/
-venv/
-.idea/
 *.pd
 *__pycache__
 *.mp4
-#!data/video.mp4
+runs/
+venv/
+.idea/
+data/
+!data/video.mp4
+models/
+!models/exp0/field_keypoints_best.pd
+!models/exp1/field_keypoints_best_170.pd
 

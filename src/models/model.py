@@ -15,18 +15,33 @@ import torch.nn.functional as F
 BASE_DIR = os.path.join(tempfile.gettempdir(), "_posenet_weights")
 
 
+def prepare_model_to_train(keypoint_num=26, model_version=50, device='cpu'):
+    """Load model and weights by model version,
+        put it to our device,
+        and change the last layers"""
+    model = MobileNetV1(model_version)
+    # Load weights
+    checkpoint = MOBILENET_V1_CHECKPOINTS[model_version]
+    state_dict = load_variables(checkpoint)
+    model.load_state_dict(state_dict)
+
+    model.to(device)
+
+    model.heatmap = nn.Conv2d(model.last_depth, keypoint_num+1, 2, 2).double().to(device)
+    model.offset = nn.Conv2d(model.last_depth, keypoint_num*2, 2, 2).double().to(device)
+    return model
+
+
 def _to_output_strided_layers(convolution_def, output_stride):
     current_stride = 1
     rate = 1
     block_id = 0
     buff = []
-    # convolution def is the model that we will use
     for c in convolution_def:
         conv_type = c[0]
         inp = c[1]
         outp = c[2]
         stride = c[3]
-        # depending on the version we use, we select the settings
         if current_stride == output_stride:
             layer_stride = 1
             layer_rate = rate
@@ -48,7 +63,6 @@ def _to_output_strided_layers(convolution_def, output_stride):
             }
         )
         block_id += 1
-    # we return the dict with settings for our net
     return buff
 
 
@@ -76,7 +90,6 @@ class InputConv(nn.Module):
 class SeperableConv(nn.Module):
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
         super(SeperableConv, self).__init__()
-        # as i understand it, depthwise is a classificator, pointwise is a 'shift layer'
         self.depthwise = nn.Conv2d(
             inp,
             inp,
@@ -262,8 +275,6 @@ def load_variables(checkpoint, base_dir=BASE_DIR):
 
 def convert(model_id, model_dir, output_stride=4):
     checkpoint_name = MOBILENET_V1_CHECKPOINTS[model_id]
-    # width = image_size
-    # height = image_size
 
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
@@ -275,16 +286,15 @@ def convert(model_id, model_dir, output_stride=4):
     torch.save(m.state_dict(), checkpoint_path)
 
 
-# from torch.nn.utils import load_state_dict_from_url
 class MobileNetV1(nn.Module):
     def __init__(self, model_id, output_stride=4):
         super(MobileNetV1, self).__init__()
 
         assert model_id in MOBILENET_V1_CHECKPOINTS.keys()
-        # how many classes for classification (in this case how many points we need to find)
+        # How many classes for classification (in this case how many points we need to find)
         self.output_stride = output_stride
 
-        # here we choose how many layers we will use, and their sizes
+        # Choose how many layers we will use, and their sizes
         if model_id == 50:
             arch = MOBILE_NET_V1_50
         elif model_id == 75:
@@ -292,7 +302,7 @@ class MobileNetV1(nn.Module):
         else:
             arch = MOBILE_NET_V1_100
 
-        # get the settings for our version of model
+        # Get the settings for our version of model
         conv_def = _to_output_strided_layers(arch, output_stride)
         conv_list = [
             (
@@ -303,7 +313,7 @@ class MobileNetV1(nn.Module):
             )
             for c in conv_def
         ]
-        # i guess it is the output sizes of last layer
+        # Output size of last layer
         last_depth = conv_def[-1]["outp"]
         self.last_depth = last_depth
         self.features = nn.Sequential(OrderedDict(conv_list))
@@ -319,9 +329,8 @@ class MobileNetV1(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        # x = self.drop(x)
-        # for classification
+        # Classify blocks
         heatmap = torch.sigmoid(self.heatmap(x))
-        # for Sx Sy
+        # Predict coordinates within a block
         offset = self.offset(x)
         return heatmap, offset

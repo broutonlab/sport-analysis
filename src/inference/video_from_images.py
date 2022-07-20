@@ -1,42 +1,54 @@
+import argparse
 import numpy as np
 import cv2
 import os
 import matplotlib as mpl
 import matplotlib.cm as mtpltcm
-
-# Define the codec and create VideoWriter object
 from PIL import Image
 
-# DIVX # mp4v # cv2.VideoWriter_fourcc(*'MJPG')
-fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-out = cv2.VideoWriter("~/video_playsight.mp4", cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080))
+"""This file can be used for creating a video
+if you have the same structure of data as in the 
+sample dataset """
 
-# import the color source
-# initialize the colormap (jet)
+parser = argparse.ArgumentParser(
+    description=" "
+)
+parser.add_argument(
+    "--path_to_images",
+    type=str,
+    default="./data/raw/1_1m.mp4",
+    help="path to video. (default:./data/raw/1_1m.mp4)",
+)
+parser.add_argument(
+    "--path_out",
+    type=str,
+    default="./data/video.mp4",
+    help="path to video. (default:./data/video.mp4)",
+)
+args = parser.parse_args()
+
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+out = cv2.VideoWriter(args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080))
+
 colormap = mpl.cm.jet
 # add a normalization
 cNorm = mpl.colors.Normalize(vmin=0, vmax=255)
 # init the mapping
 scalarMap = mtpltcm.ScalarMappable(norm=cNorm, cmap=colormap)
 
-path_to = "~/data/raw"
-# [f.path for f in os.scandir(path_to) if f.is_dir()]
-subfolders = ["~/data/raw/playsight", "~/data/raw/2_1m"]
-paths_list = list()
-for folder in subfolders:
-    IMGS = [
-        os.path.join(folder, f) if f.split(".")[-1] in ["jpg", "png"] else None
-        for f in sorted(os.listdir(folder))
-    ]
-    for img in range(2, 904):
-        if os.path.join(folder, str(img) + ".jpg") is not None:
+folder = args.path_to_images
 
-            im = np.asarray(
-                Image.open(os.path.join(folder, str(img) + ".jpg")).convert("RGB")
-            )
-            print(os.path.join(folder, str(img) + ".jpg"))
-            out.write(im)
-    break
+paths_list = list()
+count = len([f for f in os.listdir(args.path_to_images) if os.path.isfile(os.path.join(args.path_to_images, f))])
+
+for img in range(2, count):
+    if os.path.join(folder, str(img) + ".jpg") is not None:
+
+        im = np.asarray(
+            Image.open(os.path.join(folder, str(img) + ".jpg")).convert("RGB")
+        )
+        print(os.path.join(folder, str(img) + ".jpg"))
+        out.write(im)
 
 # Release everything if job is finished
 out.release()

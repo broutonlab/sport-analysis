@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from src.constants import IMG_SIZE, CELL_NUM, NUM_KEYPOINTS
+from src.options.base_options import IMG_SIZE, CELL_NUM, NUM_KEYPOINT
 
 
 def do_nett_data(points):
@@ -10,7 +10,7 @@ def do_nett_data(points):
     cells_numbers = np.array([])
     indents = np.array([])
     points = points.reshape(26, 2)
-    for i in range(NUM_KEYPOINTS // 2):
+    for i in range(NUM_KEYPOINT // 2):
         x = points[i][0].item() // cell_size
         y = points[i][1].item() // cell_size
         cells_numbers = np.append(cells_numbers, [x, y])
@@ -38,15 +38,15 @@ def get_indices(scores):
     max_vals_wight, max_indices_wight = torch.max(scores, dim=2)
 
     max_vals_height, max_indices_height = torch.max(max_vals_wight, 1)
-    # 4 height
-    new_max_indices_matrix = torch.empty(NUM_KEYPOINTS // 2, 2)
-    for i in range(NUM_KEYPOINTS // 2):
+
+    new_max_indices_matrix = torch.empty(NUM_KEYPOINT // 2, 2)
+    for i in range(NUM_KEYPOINT // 2):
         j = max_indices_height[i]
         """if max_vals_height[i] < (0.05) or max_vals_wight[i][j.item()] < (0.5):
             max_indices_widht[i][j.item()] = -1"""
         new_max_indices_matrix[i][1] = j
         new_max_indices_matrix[i][0] = max_indices_wight[i][j.item()]
-        # rint(max_vals_height[i], max_vals_wight[i][j.item()])
+
     return new_max_indices_matrix
 
 
@@ -81,9 +81,7 @@ def get_coords2(indices_image, indents_square):
 
     sxy = torch.empty(52, CELL_NUM, CELL_NUM)
 
-    # max_value = 1 * cell_size
     default_value = 0.5 * cell_size
-    # min_value = 0
 
     for layer in range(52):
         for i in range(sxy.shape[1]):

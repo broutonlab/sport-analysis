@@ -1,10 +1,10 @@
 import torch
 
-from src.constants import IMG_SIZE, NUM_KEYPOINTS, device
+from src.options.base_options import IMG_SIZE, NUM_KEYPOINT, device
 
 
 def get_pred(name, data, model):
-    # get index of dataset item for get it
+    # Get index of dataset item for get it
     inx = data.get_index(name)
     im_orig_size = data.get_image_size(inx)
     dat = data[inx]
@@ -24,7 +24,7 @@ def get_pred(name, data, model):
 def image_to_square(indices_square, clear_offset):
     cell_size = IMG_SIZE / clear_offset.shape[2]
     indices_square = indices_square.reshape(-1, 2)
-    sxy_square = torch.empty(NUM_KEYPOINTS, dtype=torch.float64).to(device)
+    sxy_square = torch.empty(NUM_KEYPOINT, dtype=torch.float64).to(device)
     index_sxy_square = 0
     for i in range(clear_offset.shape[1]):
         for j in range(clear_offset.shape[2]):
@@ -32,7 +32,6 @@ def image_to_square(indices_square, clear_offset):
                 if indices_square[inx][0] == j and indices_square[inx][1] == i:
                     current_coord = 0
                     for layer in [inx * 2, inx * 2 + 1]:
-                        # print('layer:', layer, '\nij:', j, i, '\nSxy[layer][j][i]:', Sxy[layer][j][i])
                         s_x_y = clear_offset[layer][j][i]
                         sxy_square[index_sxy_square] = (
                             cell_size * indices_square[inx][current_coord] + s_x_y
