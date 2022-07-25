@@ -1,10 +1,10 @@
 import torch
 
-from src.options.base_options import IMG_SIZE, NUM_KEYPOINT, device
+from src.options.base_options import device, IMG_SIZE, NUM_KEYPOINT
 
 
 def get_pred(name, data, model):
-    # Get index of dataset item for get it
+    """Get index of dataset item for get it"""
     inx = data.get_index(name)
     im_orig_size = data.get_image_size(inx)
     dat = data[inx]
@@ -22,6 +22,7 @@ def get_pred(name, data, model):
 
 
 def image_to_square(indices_square, clear_offset):
+    """."""
     cell_size = IMG_SIZE / clear_offset.shape[2]
     indices_square = indices_square.reshape(-1, 2)
     sxy_square = torch.empty(NUM_KEYPOINT, dtype=torch.float64).to(device)

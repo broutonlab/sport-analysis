@@ -1,10 +1,11 @@
 import numpy as np
 import torch
 
-from src.options.base_options import IMG_SIZE, CELL_NUM, NUM_KEYPOINT
+from src.options.base_options import CELL_NUM, IMG_SIZE, NUM_KEYPOINT
 
 
 def do_nett_data(points):
+    """."""
     cell_size = IMG_SIZE // CELL_NUM
 
     cells_numbers = np.array([])
@@ -14,13 +15,16 @@ def do_nett_data(points):
         x = points[i][0].item() // cell_size
         y = points[i][1].item() // cell_size
         cells_numbers = np.append(cells_numbers, [x, y])
-        indents = np.append(indents, [points[i][0].item() - x * cell_size,
-                                      points[i][1].item() - y * cell_size])
+        indents = np.append(
+            indents,
+            [points[i][0].item() - x * cell_size, points[i][1].item() - y * cell_size],
+        )
 
     return cells_numbers, indents
 
 
 def decode_card(scores, offsets):
+    """."""
     indices = get_indices(scores)
     indices = indices.reshape(-1)
     if -1 in indices:
@@ -32,6 +36,7 @@ def decode_card(scores, offsets):
 
 
 def get_indices(scores):
+    """."""
     max_vals_wight, max_indices_wight = torch.max(scores, dim=2)
 
     max_vals_height, max_indices_height = torch.max(max_vals_wight, 1)
@@ -46,6 +51,7 @@ def get_indices(scores):
 
 
 def get_coords(offsets, indices_square):
+    """."""
     cell_size = IMG_SIZE / CELL_NUM
 
     # Get headmap with map of points
@@ -70,6 +76,7 @@ def get_coords(offsets, indices_square):
 
 
 def get_coords2(indices_image, indents_square):
+    """."""
     height = CELL_NUM
 
     cell_size = IMG_SIZE / height
@@ -90,6 +97,7 @@ def get_coords2(indices_image, indents_square):
 
 
 def from_inc_to_class_image(indexes):
+    """."""
     class_image = np.zeros((27, CELL_NUM, CELL_NUM))
     indexes = indexes.reshape(-1, 2)
     class_image[26] = np.full((CELL_NUM, CELL_NUM), fill_value=1)

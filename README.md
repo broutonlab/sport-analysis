@@ -42,7 +42,7 @@ JSON format:
     "15": [
       456,
       215
-    ], 
+    ],
     ...
 ```
 Then you can train the network:
@@ -54,8 +54,8 @@ You can build video from
 ```bash
 python ./src/inference/video_from_images.py --path_to_images <path_to_images> --path_out <path_to_save>
 ```
-Download example video or other video for test, or  
+Download example video or other video for test, or
 ```bash
 python test_video.py --video_in <path_to_video> --path_out <path_to_save> --weights <path_to_weights>
 ```
-And you'll get 
+And you'll get

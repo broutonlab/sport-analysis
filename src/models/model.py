@@ -1,24 +1,24 @@
+from collections import OrderedDict
 import json
 import os
 import posixpath
 import struct
 import tempfile
-import torch
-import numpy as np
-from collections import OrderedDict
 
+import numpy as np
 import requests
+import torch
 from torch import nn
 import torch.nn.functional as F
-
 
 BASE_DIR = os.path.join(tempfile.gettempdir(), "_posenet_weights")
 
 
-def prepare_model_to_train(keypoint_num=26, model_version=50, device='cpu'):
+def prepare_model_to_train(keypoint_num=26, model_version=50, device="cpu"):
     """Load model and weights by model version,
-        put it to our device,
-        and change the last layers"""
+    put it to our device,
+    and change the last layers
+    """
     model = MobileNetV1(model_version)
     # Load weights
     checkpoint = MOBILENET_V1_CHECKPOINTS[model_version]
@@ -27,12 +27,17 @@ def prepare_model_to_train(keypoint_num=26, model_version=50, device='cpu'):
 
     model.to(device)
 
-    model.heatmap = nn.Conv2d(model.last_depth, keypoint_num+1, 2, 2).double().to(device)
-    model.offset = nn.Conv2d(model.last_depth, keypoint_num*2, 2, 2).double().to(device)
+    model.heatmap = (
+        nn.Conv2d(model.last_depth, keypoint_num + 1, 2, 2).double().to(device)
+    )
+    model.offset = (
+        nn.Conv2d(model.last_depth, keypoint_num * 2, 2, 2).double().to(device)
+    )
     return model
 
 
 def _to_output_strided_layers(convolution_def, output_stride):
+    """."""
     current_stride = 1
     rate = 1
     block_id = 0
@@ -67,13 +72,17 @@ def _to_output_strided_layers(convolution_def, output_stride):
 
 
 def _get_padding(kernel_size, stride, dilation):
+    """."""
     padding = ((stride - 1) + dilation * (kernel_size - 1)) // 2
     return padding
 
 
 class InputConv(nn.Module):
+    """."""
+
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
-        super(InputConv, self).__init__()
+        """."""
+        super().__init__()
         self.conv = nn.Conv2d(
             inp,
             outp,
@@ -84,12 +93,16 @@ class InputConv(nn.Module):
         )
 
     def forward(self, x):
+        """."""
         return F.relu6(self.conv(x))
 
 
 class SeperableConv(nn.Module):
+    """."""
+
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
-        super(SeperableConv, self).__init__()
+        """."""
+        super().__init__()
         self.depthwise = nn.Conv2d(
             inp,
             inp,
@@ -102,6 +115,7 @@ class SeperableConv(nn.Module):
         self.pointwise = nn.Conv2d(inp, outp, 1, 1)
 
     def forward(self, x):
+        """."""
         x = F.relu6(self.depthwise(x))
         x = F.relu6(self.pointwise(x))
         return x
@@ -169,6 +183,7 @@ GOOGLE_CLOUD_STORAGE_DIR = "https://storage.googleapis.com/tfjs-models/weights/p
 
 
 def download_json(checkpoint, filename, base_dir):
+    """."""
     url = posixpath.join(GOOGLE_CLOUD_STORAGE_DIR, checkpoint, filename)
     response = requests.get(url)
     data = json.loads(response.content)
@@ -178,6 +193,7 @@ def download_json(checkpoint, filename, base_dir):
 
 
 def download_file(checkpoint, filename, base_dir):
+    """."""
     url = posixpath.join(GOOGLE_CLOUD_STORAGE_DIR, checkpoint, filename)
     response = requests.get(url)
     f = open(os.path.join(base_dir, checkpoint, filename), "wb")
@@ -186,6 +202,7 @@ def download_file(checkpoint, filename, base_dir):
 
 
 def download(checkpoint, base_dir="./weights/"):
+    """."""
     save_dir = os.path.join(base_dir, checkpoint)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -202,6 +219,7 @@ def download(checkpoint, base_dir="./weights/"):
 
 
 def to_torch_name(tf_name):
+    """."""
     tf_name = tf_name.lower()
     tf_split = tf_name.split("/")
     tf_layer_split = tf_split[1].split("_")
@@ -234,6 +252,7 @@ def to_torch_name(tf_name):
 
 
 def load_variables(checkpoint, base_dir=BASE_DIR):
+    """."""
     manifest_path = os.path.join(base_dir, checkpoint, "manifest.json")
     if not os.path.exists(manifest_path):
         if (
@@ -274,6 +293,7 @@ def load_variables(checkpoint, base_dir=BASE_DIR):
 
 
 def convert(model_id, model_dir, output_stride=4):
+    """."""
     checkpoint_name = MOBILENET_V1_CHECKPOINTS[model_id]
 
     if not os.path.exists(model_dir):
@@ -287,8 +307,11 @@ def convert(model_id, model_dir, output_stride=4):
 
 
 class MobileNetV1(nn.Module):
+    """."""
+
     def __init__(self, model_id, output_stride=4):
-        super(MobileNetV1, self).__init__()
+        """."""
+        super().__init__()
 
         assert model_id in MOBILENET_V1_CHECKPOINTS.keys()
         # How many classes for classification (in this case how many points we need to find)
@@ -328,6 +351,7 @@ class MobileNetV1(nn.Module):
         self.double()
 
     def forward(self, x):
+        """."""
         x = self.features(x)
         # Classify blocks
         heatmap = torch.sigmoid(self.heatmap(x))

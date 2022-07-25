@@ -1,20 +1,20 @@
+import albumentations as A
 import numpy as np
 import torch
 from torch import nn
 
-from src.options.base_options import INF_IMG_SIZE, device
-import albumentations as A
-
 from src.models.model import MobileNetV1
+from src.options.base_options import device, INF_IMG_SIZE
 
 augment = A.Compose([A.Resize(INF_IMG_SIZE, INF_IMG_SIZE, interpolation=3)])
 
 
 def get_model(path="./checkpoints/field_keypoint_best.pd", model_version=50):
-    """ change the last 2 layers
+    """Change the last 2 layers
         NUM_KEYPOINT'S+1 = the number of layers in the headmap,
-            the number of points you are looking for and one more for the background,
-        NUM_KEYPOINT*2 = number of required coordinates, two for each point"""
+        the number of points you are looking for and one more for the background,
+        NUM_KEYPOINT*2 = number of required coordinates, two for each point
+    """
     model = MobileNetV1(model_version)
     model.heatmap = nn.Conv2d(model.last_depth, 27, 2, 2).double().to(device)
     model.offset = nn.Conv2d(model.last_depth, 52, 2, 2).double().to(device)
@@ -26,6 +26,7 @@ def get_model(path="./checkpoints/field_keypoint_best.pd", model_version=50):
 
 
 def preprocessing(image):
+    """."""
     img_ndarray = np.array(image)
     augment_img_keypoints = augment(image=img_ndarray)
 

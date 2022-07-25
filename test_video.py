@@ -1,13 +1,13 @@
 import argparse
+
 import cv2
 import matplotlib as mpl
 import matplotlib.cm as mtpltcm
 
-from src.options.base_options import INF_IMG_SIZE
+from src.inference.utils_instance import get_model, preprocessing
 from src.models.decode import decode_card
-from src.inference.utils_instance import preprocessing, get_model
-
 from src.models.utils import image_to_square
+from src.options.base_options import INF_IMG_SIZE
 
 parser = argparse.ArgumentParser(description=" ")
 
@@ -36,9 +36,12 @@ model = get_model(args.weights)
 cap = cv2.VideoCapture(args.video_in)
 
 # Define the codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # DIVX # mp4v # cv2.VideoWriter_fourcc(*'MJPG')
-out = cv2.VideoWriter(args.path_out, cv2.VideoWriter_fourcc(*"mp4v"),
-                      25.0, (INF_IMG_SIZE, INF_IMG_SIZE))
+fourcc = cv2.VideoWriter_fourcc(
+    *"mp4v"
+)  # DIVX # mp4v # cv2.VideoWriter_fourcc(*'MJPG')
+out = cv2.VideoWriter(
+    args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (INF_IMG_SIZE, INF_IMG_SIZE)
+)
 
 # Initialize the colormap (jet)
 colormap = mpl.cm.jet
@@ -62,8 +65,16 @@ while cap.isOpened():
         pred_out = image_to_square(pred_indices_linear, pred_Sxy)
 
         for i, (x, y) in enumerate(pred_out.reshape(-1, 2)):
-            image = cv2.putText(image, str(i), (int(x), int(y) - 3),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, [0, 0, 0], 2, cv2.LINE_AA)
+            image = cv2.putText(
+                image,
+                str(i),
+                (int(x), int(y) - 3),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                [0, 0, 0],
+                2,
+                cv2.LINE_AA,
+            )
             cv2.circle(image, (int(x), int(y)), 2, [0, 255, 255], -1)
 
         cv2.imshow("frame", image)

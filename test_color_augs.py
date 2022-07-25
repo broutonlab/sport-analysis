@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # read the target file
-image = './data/raw/1_1m/3.jpg'
+image = "./data/raw/1_1m/3.jpg"
 target_img = cv2.imread(image, 1)
 
 print(target_img.shape)

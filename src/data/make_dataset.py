@@ -1,12 +1,11 @@
 import albumentations as A
-from torch.utils.data.dataset import Dataset
 import numpy as np
 import torch
+from torch.utils.data.dataset import Dataset
 
-from src.options.base_options import IMG_SIZE, device
 from src.data.load_data import get_image_and_keypoints
 from src.models.decode import do_nett_data, from_inc_to_class_image, get_coords2
-
+from src.options.base_options import device, IMG_SIZE
 
 """ Augmentation"""
 augment = A.Compose(
@@ -17,7 +16,10 @@ augment = A.Compose(
 
 
 class KeypointDataset(Dataset):
+    """."""
+
     def __init__(self, samples):
+        """."""
         self.data = samples
 
     def __len__(self):
@@ -63,16 +65,22 @@ class KeypointDataset(Dataset):
 
         return {
             "image": image_final,
-            "keypoints": torch.tensor(keypoints_final.copy(), dtype=torch.float64).to(device),
-            "real_headmap": torch.tensor(real_headmap.copy(), dtype=torch.float64).to(device),
+            "keypoints": torch.tensor(keypoints_final.copy(), dtype=torch.float64).to(
+                device
+            ),
+            "real_headmap": torch.tensor(real_headmap.copy(), dtype=torch.float64).to(
+                device
+            ),
             "real_offset": real_offset.double(),
         }
 
     def get_index(self, name):
         """For visualisation by names,
-        return the number of image by its name"""
+        return the number of image by its name
+        """
         return self.data.index(name)
 
     def get_image_size(self, index):
+        """."""
         img, points = get_image_and_keypoints(self.data[index])
         return img.size

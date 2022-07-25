@@ -1,18 +1,17 @@
 import argparse
-import numpy as np
-import cv2
 import os
+
+import cv2
 import matplotlib as mpl
 import matplotlib.cm as mtpltcm
+import numpy as np
 from PIL import Image
 
 """This file can be used for creating a video
-if you have the same structure of data as in the 
+if you have the same structure of data as in the
 sample dataset """
 
-parser = argparse.ArgumentParser(
-    description=" "
-)
+parser = argparse.ArgumentParser(description=" ")
 parser.add_argument(
     "--path_to_images",
     type=str,
@@ -28,7 +27,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-out = cv2.VideoWriter(args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080))
+out = cv2.VideoWriter(
+    args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080)
+)
 
 colormap = mpl.cm.jet
 # add a normalization
@@ -38,8 +39,14 @@ scalarMap = mtpltcm.ScalarMappable(norm=cNorm, cmap=colormap)
 
 folder = args.path_to_images
 
-paths_list = list()
-count = len([f for f in os.listdir(args.path_to_images) if os.path.isfile(os.path.join(args.path_to_images, f))])
+paths_list = []
+count = len(
+    [
+        f
+        for f in os.listdir(args.path_to_images)
+        if os.path.isfile(os.path.join(args.path_to_images, f))
+    ]
+)
 
 for img in range(2, count):
     if os.path.join(folder, str(img) + ".jpg") is not None:

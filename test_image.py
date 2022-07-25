@@ -5,11 +5,11 @@ from src.models.decode import decode_card
 from src.models.utils import image_to_square
 from src.visualisation.visualize import visualize_tensor
 
-path_to_image = './data/raw/1_1m/3.jpg'
+path_to_image = "./data/raw/1_1m/3.jpg"
 
 image = PIL.Image.open(path_to_image)
 
-model = get_model('./models/exp0/field_keypoints_best.pd')
+model = get_model("./models/exp0/field_keypoints_best.pd")
 
 resized_image, tensor = preprocessing(image)
 

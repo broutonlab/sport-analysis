@@ -9,4 +9,3 @@ data/
 models/
 !models/exp0/field_keypoints_best.pd
 !models/exp1/field_keypoints_best_170.pd
-

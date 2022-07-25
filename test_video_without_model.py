@@ -1,6 +1,7 @@
 import argparse
-import cv2
 import os
+
+import cv2
 import matplotlib as mpl
 import matplotlib.cm as mtpltcm
 import numpy as np
@@ -8,12 +9,10 @@ import numpy as np
 from src.data.load_data import get_image_and_keypoints
 
 """This file can be used for creating a video
-if you have the same structure of data as in the 
+if you have the same structure of data as in the
 sample dataset """
 
-parser = argparse.ArgumentParser(
-    description=" "
-)
+parser = argparse.ArgumentParser(description=" ")
 parser.add_argument(
     "--path_to_images",
     type=str,
@@ -29,7 +28,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-out = cv2.VideoWriter(args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080))
+out = cv2.VideoWriter(
+    args.path_out, cv2.VideoWriter_fourcc(*"mp4v"), 25.0, (1920, 1080)
+)
 
 colormap = mpl.cm.jet
 # add a normalization
@@ -39,8 +40,14 @@ scalarMap = mtpltcm.ScalarMappable(norm=cNorm, cmap=colormap)
 
 folder = args.path_to_images
 
-paths_list = list()
-count = len([f for f in os.listdir(args.path_to_images) if os.path.isfile(os.path.join(args.path_to_images, f))])
+paths_list = []
+count = len(
+    [
+        f
+        for f in os.listdir(args.path_to_images)
+        if os.path.isfile(os.path.join(args.path_to_images, f))
+    ]
+)
 
 for img in range(2, count):
     if os.path.join(folder, str(img) + ".jpg") is not None:
@@ -51,8 +58,14 @@ for img in range(2, count):
 
         j = 0
         for (x, y) in p:
-            im = cv2.putText(im, str(j), (int(x), int(y) - 3), fontFace=cv2.FONT_HERSHEY_PLAIN,
-                             fontScale=0.5, color=[255, 255, 255])
+            im = cv2.putText(
+                im,
+                str(j),
+                (int(x), int(y) - 3),
+                fontFace=cv2.FONT_HERSHEY_PLAIN,
+                fontScale=0.5,
+                color=[255, 255, 255],
+            )
             cv2.circle(im, (int(x), int(y)), 2, [0, 255, 255], -1)
             j += 1
         cv2.imshow("frame", im)

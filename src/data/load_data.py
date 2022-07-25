@@ -1,9 +1,9 @@
 import json
 import os
-import numpy as np
-
-from PIL import Image
 import random
+
+import numpy as np
+from PIL import Image
 
 
 def load_paths(path_to):
@@ -11,9 +11,10 @@ def load_paths(path_to):
     then split it into lists of train and validation
 
     We have images from a few videos, so we need to get images from a few
-    directories """
+    directories
+    """
     subfolders = [f.path for f in os.scandir(path_to) if f.is_dir()]
-    paths_list = list()
+    paths_list = []
 
     for folder in subfolders:
         imgs = [
@@ -33,9 +34,10 @@ def load_paths(path_to):
 
 
 def get_image_and_keypoints(im_path):
-    """ Get path to json file and image.
-      Then load all the points we have and store them in one array.
-      If we don't have a point, then it will have x=0, y=0"""
+    """Get path to json file and image.
+    Then load all the points we have and store them in one array.
+    If we don't have a point, then it will have x=0, y=0
+    """
     json_name = (
         "/".join(im_path.split("/")[:-1])
         + "/result_"
@@ -56,11 +58,9 @@ def get_image_and_keypoints(im_path):
             if str(i + 1) in f_data[im_name]:
                 points[i] = f_data[im_name][str(i + 1)]
             elif i < 9:
-                points[i] = [im.size[0]-1, im.size[1]-1]
+                points[i] = [im.size[0] - 1, im.size[1] - 1]
             elif 8 < i < 19:
-                points[i] = [im.size[0]//2, im.size[1]-1]
+                points[i] = [im.size[0] // 2, im.size[1] - 1]
             else:
-                points[i] = [0, im.size[1]-1]
+                points[i] = [0, im.size[1] - 1]
     return im, points
-
-

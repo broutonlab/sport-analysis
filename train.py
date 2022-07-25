@@ -2,16 +2,15 @@ import argparse
 import os
 
 import torch
-from torch import optim
-from torch import nn
+from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from src.options.base_options import BATCH_SIZE, EPOCHS, BEST_LOSS, device
 from src.data.load_data import load_paths
 from src.data.make_dataset import KeypointDataset
 from src.models.model import prepare_model_to_train
 from src.models.predict import train, validate
+from src.options.base_options import BATCH_SIZE, BEST_LOSS, device, EPOCHS
 from src.visualisation.visualize import visualize_model
 
 """-------------- GET ARGUMENTS --------------"""
@@ -65,22 +64,27 @@ criterion_point_class = torch.nn.BCELoss()
 writer = SummaryWriter()
 
 
-if not os.path.isdir(os.path.join('./models/', args.exp_name)):
-    os.mkdir(os.path.join('./models/', args.exp_name))
+if not os.path.isdir(os.path.join("./models/", args.exp_name)):
+    os.mkdir(os.path.join("./models/", args.exp_name))
 """-------------- TRAINING PROCESS --------------"""
 
 for epoch in range(EPOCHS):
     print(f"Epoch {epoch + 1} of {EPOCHS}")
     val_best_loss = BEST_LOSS
-    train_epoch_loss = train(model, train_loader, train_data, criterion,
-                             optimizer, criterion_point_class)
-    val_epoch_loss, best_model_wts = validate(model, val_loader, val_data, criterion,
-                                              criterion_point_class, val_best_loss)
+    train_epoch_loss = train(
+        model, train_loader, train_data, criterion, optimizer, criterion_point_class
+    )
+    val_epoch_loss, best_model_wts = validate(
+        model, val_loader, val_data, criterion, criterion_point_class, val_best_loss
+    )
 
     if epoch % 5 == 0:
         model.load_state_dict(best_model_wts)
     if epoch % 10 == 0:
-        torch.save(model.state_dict(), os.path.join('./models/', args.exp_name, f"field_keypoint_best_{epoch}.pd"))
+        torch.save(
+            model.state_dict(),
+            os.path.join("./models/", args.exp_name, f"field_keypoint_best_{epoch}.pd"),
+        )
     print(f"Train Loss: {train_epoch_loss:.4f}")
     writer.add_scalar("Train Loss", train_epoch_loss, epoch)
     print(f"Val Loss: {val_epoch_loss:.4f}")
@@ -89,7 +93,10 @@ for epoch in range(EPOCHS):
 # Load best model weights
 model.load_state_dict(best_model_wts)
 # Save best weights
-torch.save(model.state_dict(), os.path.join('./models/', args.exp_name, "field_keypoint_best.pd"))
+torch.save(
+    model.state_dict(),
+    os.path.join("./models/", args.exp_name, "field_keypoint_best.pd"),
+)
 # Visualize results
 visualize_model(samples_val, 5, val_data, model)
 visualize_model(samples_train, 5, train_data, model)
