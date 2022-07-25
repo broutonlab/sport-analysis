@@ -6,6 +6,12 @@ authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+norfair = {extras = ["video"], version = "^1.0.0"}
+yolov5 = "^6.1.6"
+pre-commit = "^2.20.0"
+black = "^22.6.0"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
 
 [tool.poetry.dev-dependencies]
 
