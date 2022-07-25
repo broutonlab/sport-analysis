@@ -2,7 +2,6 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
-from src.data.make_dataset import get_image_and_keypoints
 from src.models.decode import decode_card
 from src.models.utils import get_pred, image_to_square
 

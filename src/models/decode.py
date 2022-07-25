@@ -14,10 +14,8 @@ def do_nett_data(points):
         x = points[i][0].item() // cell_size
         y = points[i][1].item() // cell_size
         cells_numbers = np.append(cells_numbers, [x, y])
-        indents = np.append(
-            indents,
-            [points[i][0].item() - x * cell_size, points[i][1].item() - y * cell_size],
-        )
+        indents = np.append(indents, [points[i][0].item() - x * cell_size,
+                                      points[i][1].item() - y * cell_size])
 
     return cells_numbers, indents
 
@@ -26,7 +24,6 @@ def decode_card(scores, offsets):
     indices = get_indices(scores)
     indices = indices.reshape(-1)
     if -1 in indices:
-        # print('< 4 points')
         coords = torch.empty(offsets.shape)
         head = None
     else:
@@ -42,8 +39,6 @@ def get_indices(scores):
     new_max_indices_matrix = torch.empty(NUM_KEYPOINT // 2, 2)
     for i in range(NUM_KEYPOINT // 2):
         j = max_indices_height[i]
-        """if max_vals_height[i] < (0.05) or max_vals_wight[i][j.item()] < (0.5):
-            max_indices_widht[i][j.item()] = -1"""
         new_max_indices_matrix[i][1] = j
         new_max_indices_matrix[i][0] = max_indices_wight[i][j.item()]
 
@@ -53,7 +48,7 @@ def get_indices(scores):
 def get_coords(offsets, indices_square):
     cell_size = IMG_SIZE / CELL_NUM
 
-    # получение сетки хэдмэпа с сектами точек
+    # Get headmap with map of points
     sxy_where = from_inc_to_class_image(indices_square)
     sxy = torch.empty(offsets.shape)
 

@@ -1,4 +1,6 @@
 import argparse
+import os
+
 import torch
 from torch import optim
 from torch import nn
@@ -20,6 +22,12 @@ parser.add_argument(
     type=str,
     default="./data/raw",
     help="path to video. (default:./data/raw)",
+)
+parser.add_argument(
+    "--exp_name",
+    type=str,
+    default="exp_last",
+    help="path to video. (default:exp_last)",
 )
 
 args = parser.parse_args()
@@ -56,6 +64,9 @@ criterion_point_class = torch.nn.BCELoss()
 # For tensorboard statistics
 writer = SummaryWriter()
 
+
+if not os.path.isdir(os.path.join('./models/', args.exp_name)):
+    os.mkdir(os.path.join('./models/', args.exp_name))
 """-------------- TRAINING PROCESS --------------"""
 
 for epoch in range(EPOCHS):
@@ -69,7 +80,7 @@ for epoch in range(EPOCHS):
     if epoch % 5 == 0:
         model.load_state_dict(best_model_wts)
     if epoch % 10 == 0:
-        torch.save(model.state_dict(), f"./checkpoints/field_keypoint_best_{epoch}.pd")
+        torch.save(model.state_dict(), os.path.join('./models/', args.exp_name, f"field_keypoint_best_{epoch}.pd"))
     print(f"Train Loss: {train_epoch_loss:.4f}")
     writer.add_scalar("Train Loss", train_epoch_loss, epoch)
     print(f"Val Loss: {val_epoch_loss:.4f}")
@@ -78,7 +89,7 @@ for epoch in range(EPOCHS):
 # Load best model weights
 model.load_state_dict(best_model_wts)
 # Save best weights
-torch.save(model.state_dict(), "models/exp0/field_keypoint_best.pd")
+torch.save(model.state_dict(), os.path.join('./models/', args.exp_name, "field_keypoint_best.pd"))
 # Visualize results
 visualize_model(samples_val, 5, val_data, model)
 visualize_model(samples_train, 5, train_data, model)
