@@ -15,4 +15,4 @@ This example tracks objects using a single or double point per detection: the ce
 
 ## Tracking people
 
-![Norfair tracking pedestrians using YOLOv5](data/runs/demo.gif)
+![Norfair tracking pedestrians using YOLOv5](assets/demo.gif)
