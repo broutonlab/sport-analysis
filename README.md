@@ -4,7 +4,7 @@ Simplest possible example of tracking. Based on [YOLOv5-pip](https://github.com/
 
 ## Instructions
 
-1. activate venv `poetry shell`
+1. Activate venv `poetry shell`
 2. Run `python demo.py <video file>`
 3. Bonus: Use additional arguments `--detector_path`, `--img_size`, `--iou_thres`,`--conf_thres`, `--classes`, `--track_points` as you wish.
 
