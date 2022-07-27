@@ -14,7 +14,7 @@ import torch.nn.functional as F
 BASE_DIR = os.path.join(tempfile.gettempdir(), "_posenet_weights")
 
 
-def prepare_model_to_train(keypoint_num=26, model_version=50, device="cpu"):
+def prepare_model_to_train(keypoint_num=16, model_version=50, device="cpu"):
     """Load model and weights by model version,
     put it to our device,
     and change the last layers

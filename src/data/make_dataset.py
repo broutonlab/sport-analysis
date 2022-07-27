@@ -7,20 +7,24 @@ from src.data.load_data import get_image_and_keypoints
 from src.models.decode import do_nett_data, from_inc_to_class_image, get_coords2
 from src.options.base_options import device, IMG_SIZE
 
-""" Augmentation"""
-augment = A.Compose(
-    [A.Resize(IMG_SIZE, IMG_SIZE, interpolation=3)],
-    # A.HorizontalFlip(p=0.5)],
-    keypoint_params=A.KeypointParams(format="xy"),
-)
+
+def augmentation(image, keypoint):
+    """Augmentation"""
+    augment = A.Compose(
+        [A.Resize(IMG_SIZE, IMG_SIZE, interpolation=3)],
+        # A.HorizontalFlip(p=0.5)],
+        keypoint_params=A.KeypointParams(format="xy"),
+    )
+    return augment(image=image, keypoints=keypoint)
 
 
 class KeypointDataset(Dataset):
     """."""
 
-    def __init__(self, samples):
+    def __init__(self, samples, num_keypoint=16):
         """."""
         self.data = samples
+        self.num_keypoint = num_keypoint
 
     def __len__(self):
         return len(self.data)
@@ -44,17 +48,21 @@ class KeypointDataset(Dataset):
                 points_list[i][0] = points_list[i][0] - 1
             if points_list[i][1] == img.size[1]:
                 points_list[i][1] = points_list[i][1] - 1
-        augment_img_keypoints = augment(image=img_ndarray, keypoints=points_list)
-        image_final, keypoints_final = (
-            augment_img_keypoints["image"],
-            augment_img_keypoints["keypoints"],
+        augment_img_keypoint = augmentation(image=img_ndarray, keypoint=points_list)
+        image_final, keypoint_final = (
+            augment_img_keypoint["image"],
+            augment_img_keypoint["keypoints"],
         )
 
-        keypoints_final = np.array(keypoints_final).reshape(-1)
+        keypoint_final = np.array(keypoint_final).reshape(-1)
 
-        real_indices_square, real_sxy_square = do_nett_data(keypoints_final)
-        real_headmap = from_inc_to_class_image(real_indices_square)
-        real_offset = get_coords2(real_headmap, real_sxy_square).to(device)
+        real_indices_square, real_sxy_square = do_nett_data(
+            keypoint_final, self.num_keypoint
+        )
+        real_headmap = from_inc_to_class_image(real_indices_square, self.num_keypoint)
+        real_offset = get_coords2(real_headmap, real_sxy_square, self.num_keypoint).to(
+            device
+        )
 
         image_final = torch.tensor(image_final.copy(), dtype=torch.float64).cpu()
         # For visualize real points_list after code and decode
@@ -65,7 +73,7 @@ class KeypointDataset(Dataset):
 
         return {
             "image": image_final,
-            "keypoints": torch.tensor(keypoints_final.copy(), dtype=torch.float64).to(
+            "keypoints": torch.tensor(keypoint_final.copy(), dtype=torch.float64).to(
                 device
             ),
             "real_headmap": torch.tensor(real_headmap.copy(), dtype=torch.float64).to(

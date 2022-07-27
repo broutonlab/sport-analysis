@@ -6,8 +6,11 @@ from src.models.decode import decode_card
 from src.models.utils import get_pred, image_to_square
 
 
-def visualize(image, image_keypoint, diameter=2):
-    """."""
+# def draw_line():
+#     for
+
+def visualize(image, image_keypoint, diameter=2, lines=True):
+    """Put points and their nums at the image and show it"""
     image = image.copy()
     j = 0
     for (x, y) in image_keypoint:
@@ -21,6 +24,8 @@ def visualize(image, image_keypoint, diameter=2):
         )
         cv2.circle(image, (int(x), int(y)), diameter, [0, 255, 255], -1)
         j += 1
+    if lines:
+        pass
 
     plt.figure(figsize=(8, 8))
     plt.axis("off")
@@ -29,7 +34,7 @@ def visualize(image, image_keypoint, diameter=2):
 
 
 def visualize_tensor(tensor_image, tensor_points):
-    """."""
+    """Processing data into numpy, that can be visualized, and visualize result"""
     tensor_points = tensor_points.cpu()
     tensor_points = tensor_points.detach().numpy()
     # 2 for x and y coordinats
@@ -42,17 +47,20 @@ def visualize_tensor(tensor_image, tensor_points):
     visualize(tensor_image, tensor_points)
 
 
-def visualize_model(samples, num_samples, data, model):
-    """."""
+def visualize_model(samples, num_samples, data, model, num_keypoint):
+    """Got some samples from dataset,
+    put it into the model,
+    and visualize the results
+    """
     selected_samples = np.random.choice(samples, num_samples, replace=False)
     for sample in selected_samples:
-        # get image, image points and predict points by image name
+        # Get image, image points and predict points by image name
         img, out, poi, im_orig_size, real_headmap = get_pred(sample, data, model)
         heatmaps, offsets = out
-        # decode results
+        # Decode results
 
         pred_indices_linear, pred_sxy, head = decode_card(
-            heatmaps[0].squeeze(0), offsets[0].squeeze(0)
+            heatmaps[0].squeeze(0), offsets[0].squeeze(0), num_keypoint
         )
         pred_out = image_to_square(pred_indices_linear, pred_sxy)
 

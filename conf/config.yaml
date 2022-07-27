@@ -1,0 +1,7 @@
+train_default:
+  dataset: "./data/raw"
+  exp_name: "exp_last"
+
+train_:
+  dataset: "./data/raw"
+  exp_name: "exp_"

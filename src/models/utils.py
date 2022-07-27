@@ -1,6 +1,6 @@
 import torch
 
-from src.options.base_options import device, IMG_SIZE, NUM_KEYPOINT
+from src.options.base_options import device, IMG_SIZE, num_keypoint
 
 
 def get_pred(name, data, model):
@@ -25,7 +25,7 @@ def image_to_square(indices_square, clear_offset):
     """."""
     cell_size = IMG_SIZE / clear_offset.shape[2]
     indices_square = indices_square.reshape(-1, 2)
-    sxy_square = torch.empty(NUM_KEYPOINT, dtype=torch.float64).to(device)
+    sxy_square = torch.empty(num_keypoint, dtype=torch.float64).to(device)
     index_sxy_square = 0
     for i in range(clear_offset.shape[1]):
         for j in range(clear_offset.shape[2]):

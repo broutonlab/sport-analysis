@@ -5,6 +5,8 @@ import random
 import numpy as np
 from PIL import Image
 
+from src.options.base_options import num_keypoint
+
 
 def load_paths(path_to):
     """Get list of all names in the dataset,
@@ -47,20 +49,22 @@ def get_image_and_keypoints(im_path):
     im_name = im_path.split("/")[-1]
     im = Image.open(im_path).convert("RGB")
 
-    points = np.zeros([26, 2])
+    points = np.zeros([num_keypoint, 2])
     # We have 3 default values:
     # for points 1-8 right bottom point,
     # for points 9-18 center bottom point,
     # for points 19-26 left bottom point.
+    not_need_nums = [5, 6, 9, 10, 13, 14, 17, 18, 21, 22]
     with open(json_name) as f:
         f_data = json.load(f)
         for i in range(points.shape[0]):
-            if str(i + 1) in f_data[im_name]:
-                points[i] = f_data[im_name][str(i + 1)]
-            elif i < 9:
-                points[i] = [im.size[0] - 1, im.size[1] - 1]
-            elif 8 < i < 19:
-                points[i] = [im.size[0] // 2, im.size[1] - 1]
-            else:
-                points[i] = [0, im.size[1] - 1]
+            if i + 1 not in not_need_nums:
+                if str(i + 1) in f_data[im_name]:
+                    points[i] = f_data[im_name][str(i + 1)]
+                elif i < 9:
+                    points[i] = [im.size[0] - 1, im.size[1] - 1]
+                elif 8 < i < 19:
+                    points[i] = [im.size[0] // 2, im.size[1] - 1]
+                else:
+                    points[i] = [0, im.size[1] - 1]
     return im, points

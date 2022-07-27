@@ -11,9 +11,9 @@ augment = A.Compose([A.Resize(INF_IMG_SIZE, INF_IMG_SIZE, interpolation=3)])
 
 def get_model(path="./checkpoints/field_keypoint_best.pd", model_version=50):
     """Change the last 2 layers
-        NUM_KEYPOINT'S+1 = the number of layers in the headmap,
-        the number of points you are looking for and one more for the background,
-        NUM_KEYPOINT*2 = number of required coordinates, two for each point
+    NUM_KEYPOINT'S+1 = the number of layers in the headmap,
+    the number of points you are looking for and one more for the background,
+    NUM_KEYPOINT*2 = number of required coordinates, two for each point
     """
     model = MobileNetV1(model_version)
     model.heatmap = nn.Conv2d(model.last_depth, 27, 2, 2).double().to(device)
@@ -28,9 +28,9 @@ def get_model(path="./checkpoints/field_keypoint_best.pd", model_version=50):
 def preprocessing(image):
     """."""
     img_ndarray = np.array(image)
-    augment_img_keypoints = augment(image=img_ndarray)
+    augment_img_keypoint = augment(image=img_ndarray)
 
-    image_final = augment_img_keypoints["image"]
+    image_final = augment_img_keypoint["image"]
     im_final = image_final.reshape(
         1, image_final.shape[0], image_final.shape[1], image_final.shape[2]
     )

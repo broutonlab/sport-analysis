@@ -69,6 +69,7 @@ for img in range(2, count):
             cv2.circle(im, (int(x), int(y)), 2, [0, 255, 255], -1)
             j += 1
         cv2.imshow("frame", im)
+        cv2.waitKey(0)
         out.write(im)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):

@@ -6,6 +6,8 @@ venv/
 .idea/
 data/
 !data/video.mp4
-models/
+./models/
 !models/exp0/field_keypoints_best.pd
 !models/exp1/field_keypoints_best_170.pd
+/tests/
+conf/
