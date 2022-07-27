@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ball_tracking"
+version = "0.1.0"
+description = ""
+authors = ["broutonlab"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torch = "^1.12.0"
+yolov5 = "^6.1.6"
+numpy = "^1.23.1"
+norfair = "^1.0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
