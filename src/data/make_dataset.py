@@ -55,7 +55,6 @@ class KeypointDataset(Dataset):
         )
 
         keypoint_final = np.array(keypoint_final).reshape(-1)
-
         real_indices_square, real_sxy_square = do_nett_data(
             keypoint_final, self.num_keypoint
         )
